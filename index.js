@@ -6,7 +6,15 @@ let tryCount = 0;
 //* 1. 0과 9사이의 서로 다른 숫자 3개를 무작위로 뽑아 numbers 배열에 추가해주세요.
 //* (단, 숫자는 중복되면 안됩니다.)
 function generateNumbers() {
-  // 코드 구현
+  function generateNumber() {
+    while(numbers.length < 3) {
+        let inputnumber = Math.floor(Math.random()*10); 
+        if(!numbers.includes(inputnumber)) {
+            numbers.push(inputnumber)
+        }
+    }
+    return numbers;
+}
 }
 
 //* 2. 사용자가 입력한 숫자가 numbers 배열에 있는지 확인하는 함수를 만들어주세요.
