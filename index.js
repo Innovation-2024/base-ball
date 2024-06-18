@@ -1,42 +1,59 @@
-// 이곳에 코드를 구현해주세요.
-
-const numbers = [];
+const numbers = generateNumber();
 let tryCount = 0;
 
-//* 1. 0과 9사이의 서로 다른 숫자 3개를 무작위로 뽑아 numbers 배열에 추가해주세요.
-//* (단, 숫자는 중복되면 안됩니다.)
-function generateNumbers() {
-  while(numbers.length < 3) {
-    let inputnumber = Math.floor(Math.random()*10); 
-      if(!numbers.includes(inputnumber)) {
-        numbers.push(inputnumber)
-      }
-  }
-  return numbers;
+function generateNumber() {
+    const numbers = [];
+    while (numbers.length < 3) {
+        let inputnumber = Math.floor(Math.random() * 10);
+        if (!numbers.includes(inputnumber)) {
+            numbers.push(inputnumber);
+        }
+    }
+    return numbers;
 }
 
-//* 2. 사용자가 입력한 숫자가 numbers 배열에 있는지 확인하는 함수를 만들어주세요.
-//* (숫자가 있으면 true, 없으면 false를 반환해야 합니다.)
 function checkInputNumber(inputNumber) {
-  for(let i=0; i<3; i++) {
-        for(let j=0; j<3; j++) {
-            if(numbers[i] == inputNumber[j]) {
-                if(i === j) {
-                    return true; // 숫자와 자릿수가 같을때 true
+    let strike = 0;
+    let ball = 0;
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            if (numbers[i] == inputNumber[j]) {
+                if (i === j) {                                                                                                                                                                                                                                                                                                            
+                    strike++;
                 } else {
-                    return false;// 숫자는 같지만 자릿수가 다를때 false
+                    ball++;
                 }
             }
         }
     }
+    return { strike, ball };
 }
 
-document
-  .getElementById("gameForm")
-  .addEventListener("submit", function (event) {
+document.getElementById('gameForm').addEventListener('submit', function (event) {
     event.preventDefault();
-    //* 사용자가 입력한 숫자 값을 가져와, (2)에서 만든 함수를 사용해 결과를 출력해주세요.
-    //* 결과값에 따라, div#result와 div#history에 결과를 추가해주세요.
+    const guessInput = document.getElementById('guessInput').value;
+    if (guessInput.length !== 3 || isNaN(guessInput)) {
+        alert('3자리 숫자를 입력하세요.');
+        return;
+    }
+    const inputNumber = guessInput.split('').map(Number);
+    const result = checkInputNumber(inputNumber);
+    tryCount++;
 
-    // 코드 구현
-  });
+    const resultDiv = document.getElementById('result');
+    const tryCountDiv = document.getElementById('try-count');
+    const historyDiv = document.getElementById('history');
+
+    resultDiv.textContent = `결과: ${result.strike} 스트라이크, ${result.ball} 볼`;
+    tryCountDiv.textContent = `시도 횟수: ${tryCount}`;
+    
+    const historyItem = document.createElement('div');
+    historyItem.classList.add('history-item');
+    historyItem.textContent = `${guessInput} - ${result.strike}S ${result.ball}B`;
+    historyDiv.appendChild(historyItem);
+
+    if (result.strike === 3) {
+        alert(`축하합니다! ${tryCount}번 만에 맞추셨습니다.`);
+        window.location.reload();
+    }
+});
