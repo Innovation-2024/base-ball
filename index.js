@@ -1,26 +1,114 @@
-// 이곳에 코드를 구현해주세요.
+class BaseBall {
+  constructor() {
+    this.answerNumbers = [];
+    this.tryCount = 0;
 
-const numbers = [];
-let tryCount = 0;
+    this.$form = document.querySelector("#gameForm");
+    this.$input = document.querySelector("#guessInput");
+    this.$result = document.querySelector("#result");
+    this.$tryCount = document.querySelector("#try-count");
+    this.$history = document.querySelector("#history");
+  }
 
-//* 1. 0과 9사이의 서로 다른 숫자 3개를 무작위로 뽑아 numbers 배열에 추가해주세요.
-//* (단, 숫자는 중복되면 안됩니다.)
-function generateNumbers() {
-  // 코드 구현
+  // 게임 시작
+  start() {
+    this.answerNumbers = this.generateNumbers();
+    this.tryCount = 0;
+
+    this.$form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      this.try(this.$input.value);
+      this.$input.value = "";
+      this.$input.focus();
+    });
+  }
+
+  // 초기 랜덤 숫자 생성
+  generateNumbers() {
+    const result = [];
+    const candidate = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = 0; i < 3; i++) {
+      // 한개씩 뽑은 후에 배열에서 제거 & 뽑은 숫자개수(i)만큼 index앞당기기
+      const chosen = candidate.splice(
+        Math.floor(Math.random() * (9 - i)),
+        1
+      )[0];
+      result.push(chosen);
+    }
+
+    return result;
+  }
+
+  // 사용자 input 시도
+  try(inputValue) {
+    if (inputValue.length !== 3) {
+      alert("3자리 숫자를 입력해주세요.");
+      return;
+    }
+
+    if (new Set(inputValue).size !== 3) {
+      alert("중복되지 않게 입력해주세요.");
+      return;
+    }
+
+    this.tryCount++;
+    const { strike, ball } = this.checkNumber(inputValue);
+
+    this.$tryCount.textContent = `시도 횟수: ${this.tryCount}`;
+    this.displayResult(inputValue, strike, ball);
+    this.displayHistory(inputValue, strike, ball);
+  }
+
+  // 입력값 <-> 결과값 비교
+  checkNumber(input) {
+    const tryNumbers = input.split("").map(Number);
+
+    let [strike, ball] = [0, 0];
+    for (let i = 0; i < this.answerNumbers.length; i++) {
+      if (this.answerNumbers[i] === tryNumbers[i]) {
+        strike++;
+      } else if (this.answerNumbers.includes(tryNumbers[i])) {
+        ball++;
+      }
+    }
+
+    return { strike, ball };
+  }
+
+  // 결과, 화면에 표시
+  displayResult(inputValue, strike, ball) {
+    if (strike === 3) {
+      this.$result.textContent = "🎉 홈런! 축하합니다!";
+      this.endGame();
+    } else {
+      this.$result.textContent = `${inputValue} - ${strike} S ${ball} B`;
+    }
+  }
+
+  // 시도 횟수, 화면에 표시
+  displayHistory(inputValue, strike, ball) {
+    const $li = document.createElement("li");
+    $li.textContent = `${inputValue} - ${strike} S ${ball} B`;
+    this.$history.appendChild($li);
+  }
+
+  endGame() {
+    this.$input.disabled = true;
+    this.$input.value = "";
+    this.$input.placeholder = "게임이 종료되었습니다.";
+    this.$form.removeEventListener("submit", () => {});
+
+    setTimeout(() => {
+      if (window.confirm("게임을 다시 시작하시겠습니까?")) {
+        window.location.reload();
+      }
+    }, 1000);
+  }
 }
 
-//* 2. 사용자가 입력한 숫자가 numbers 배열에 있는지 확인하는 함수를 만들어주세요.
-//* (숫자가 있으면 true, 없으면 false를 반환해야 합니다.)
-function checkInputNumber(inputNumber) {
-  // 코드 구현
-}
+const baseBall = new BaseBall();
 
-document
-  .getElementById("gameForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    //* 사용자가 입력한 숫자 값을 가져와, (2)에서 만든 함수를 사용해 결과를 출력해주세요.
-    //* 결과값에 따라, div#result와 div#history에 결과를 추가해주세요.
+baseBall.start();
 
-    // 코드 구현
-  });
+console.log(baseBall.answerNumbers);
